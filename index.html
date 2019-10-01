@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Coding demo</title>
+
+  <!-- load the scripts that make the visualisations work -->
+  <script src="https://cdn.jsdelivr.net/npm/imjs@3.16.0/dist/im.min.js" integrity="sha256-3AAhWzHG0O3IsZX4BdxL63L30NN3Kjn6c2YhONE8mHs=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+  <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+
+  <!-- tissue expression vis-->
+  <script src="https://cdn.jsdelivr.net/npm/@intermine/bluegenes-tissue-expression-visualizer@1.0.4/dist/bundle.js" integrity="sha256-VSOwn5Z8QCNYLTcOXg+MlVJ8OAkGGGHRtir+lev/yVc=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@intermine/bluegenes-tissue-expression-visualizer@1.0.4/dist/style.css" integrity="sha256-nXyCJR6FJwZkSCPF4Q9LUXrc3OfspcP+CHSIWS0p5UU=" crossorigin="anonymous">
+
+  <!-- -->
+
+
+
+</head>
+
+<body>
+
+  <div class="bluegenesTissueExpressionVisualizer" id='bluegenesTissueExpressionVisualizer' />
+
+  <script>
+    window.onload = function() {
+      // We're going to write the name of a gene here, then initialise
+      // an expression graph with it.
+      var geneToShow = "Zen";
+
+      //InterMine URL, where we fetch the data from
+      var imURL = {
+        root: 'http://www.flymine.org/flymine/service',
+      };
+
+
+
+      /** *********************** **/
+      /** Don't change below here **/
+      /** *********************** **/
+
+      var query = {
+        "from": "Gene",
+        "select": [
+          "id",
+          "secondaryIdentifier",
+          "symbol",
+          "primaryIdentifier"
+        ],
+        "where": [{
+          "path": "Gene",
+          "op": "LOOKUP",
+          "value": geneToShow,
+          "extraValue": "D. melanogaster",
+          "code": "A"
+        }]
+      };
+
+      const flymine = new imjs.Service(imURL);
+      flymine.records(query).then(result => {
+
+          console.log("result is:", result);
+
+          // get the first result if there's more than one
+          geneId = result[0].objectId;
+
+
+          //The element to attach the viewer to.
+          //Must be an existing HTML element
+          var elem = document.getElementById('bluegenesTissueExpressionVisualizer'),
+            //the settings to initialise our viewer with
+            dataToInitialiseToolWith = {
+              class: 'Gene',
+              format: 'id',
+              value: geneId
+            };
+
+          // THIS LINE IS THE IMPORTANT BIT. YOU SHOULDN'T NEED TO EDIT IT
+          // the method signature should match the signature in src/index.js
+          bluegenesTissueExpressionVisualizer.main(
+            elem,
+            imURL,
+            dataToInitialiseToolWith, {}, {}
+          );
+        });
+      };
+  </script>
+
+</body>
+
+</html>
